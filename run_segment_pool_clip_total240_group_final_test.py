@@ -1,0 +1,19 @@
+from __future__ import annotations
+import json
+from pathlib import Path
+import numpy as np, pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score, precision_score, recall_score
+import run_multimodal_val_locked_suite as suite
+
+OUT=Path('outputs'); ROOT=Path('/home/ttung05/Desktop/tree_base/tree_structures'); REPORT=OUT/'audio_feature_benchmarks/segment_pool_clip_total240_group_selection'; NAMES=['ambient','leaf','trunk','twig']; LABELS=np.arange(4)
+def keys(s): return s.astype(str).str.replace(r'_window_\d+.*$','',regex=True).str.replace(r'^audio/','',regex=True)
+def pool(frame,img,aud):
+ k=keys(frame.audio_file); codes=pd.factorize(k,sort=False)[0]; n=int(codes.max())+1; inds=[np.where(codes==i)[0] for i in range(n)]; return codes,np.hstack([np.vstack([img[ix].mean(0) for ix in inds]),np.vstack([aud[ix].mean(0) for ix in inds])]),inds
+def main():
+ lock=json.loads((REPORT/'selection_lock.json').read_text()); cand=lock['selected_candidate']; hand=suite.load_manifest(ROOT/'audio_visual_dataset_default/dataset.csv',ROOT/'audio_visual_dataset_default','hand_train'); yh=hand.y.to_numpy(int); ih=np.load(OUT/'image_timm_features/vit_base_patch16_clip_224.openai_ft_in1k/hand_train_full/X.npy'); ah=np.load(OUT/'audio_feature_benchmarks/total240_trainval_select/features/hand_train_full/X.npy'); ch,Xh,inds=pool(hand,ih,ah); yseg=np.array([yh[ix[0]] for ix in inds],int); m=Pipeline([('scale',StandardScaler()),('model',LogisticRegression(C=.1,class_weight='balanced',max_iter=1500,random_state=42))]).fit(Xh,yseg)
+ test=suite.load_manifest(ROOT/'audio_visual_dataset_robo_default/dataset.csv',ROOT/'audio_visual_dataset_robo_default','robot_test'); raw=pd.read_csv(ROOT/'audio_visual_dataset_robo_default/dataset.csv'); it=np.load(OUT/'image_timm_features/vit_base_patch16_clip_224.openai_ft_in1k/robot_test/X.npy'); at=np.load(OUT/'audio_feature_benchmarks/total240_trainval_select/features/robot_test/X.npy'); ct,Xt,inds_t=pool(test,it,at); pseg=m.predict_proba(Xt); predseg=np.argmax(pseg,1); pred=predseg[ct]; y=test.y.to_numpy(int); by,bp=(y>0).astype(int),(pred>0).astype(int)
+ result={'split':'robot_test_final','protocol':'segment_pool_clip_total240_after_5fold_specimen_group_selection','n':int(len(y)),'locked_candidate':lock,'segment_purity_test':bool(all(test.iloc[ix].y.nunique()==1 for ix in inds_t)),'accuracy_4class':float(accuracy_score(y,pred)),'macro_precision_4class':float(precision_score(y,pred,average='macro',zero_division=0)),'macro_recall_4class':float(recall_score(y,pred,average='macro',zero_division=0)),'macro_f1_4class':float(f1_score(y,pred,average='macro',zero_division=0)),'weighted_f1_4class':float(f1_score(y,pred,average='weighted',zero_division=0)),'binary_accuracy_ambient_noambient':float(accuracy_score(by,bp)),'binary_macro_precision_ambient_noambient':float(precision_score(by,bp,average='macro',zero_division=0)),'binary_macro_recall_ambient_noambient':float(recall_score(by,bp,average='macro',zero_division=0)),'binary_macro_f1_ambient_noambient':float(f1_score(by,bp,average='macro',zero_division=0)),'per_class_4class':classification_report(y,pred,labels=LABELS,target_names=NAMES,output_dict=True,zero_division=0),'per_class_binary':classification_report(by,bp,labels=[0,1],target_names=['ambient','noambient'],output_dict=True,zero_division=0),'confusion_matrix_4class':confusion_matrix(y,pred,labels=LABELS).tolist(),'confusion_matrix_binary':confusion_matrix(by,bp,labels=[0,1]).tolist()}; (REPORT/'segment_pool_final_test_metrics.json').write_text(json.dumps(result,indent=2,default=float)); print(json.dumps(result,indent=2,default=float))
+if __name__=='__main__': main()

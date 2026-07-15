@@ -1,0 +1,84 @@
+{
+  "recipe_id": "paper_claim_v1_protect_trunk_cascade",
+  "version": 1,
+  "claim_type": "pure_single_shot_locked_recipe",
+  "description": "Frozen multimodal recipe. All HPs below are either (a) frozen constants from prior hand-only locks or (b) selected only on hand under the pre-registered ranking rule. Robot/test must be opened at most once after selection_lock is written.",
+  "data": {
+    "selection_split": "hand_train",
+    "selection_dataset": "audio_visual_dataset_default",
+    "test_split": "robot_test",
+    "test_dataset": "audio_visual_dataset_robo_default",
+    "group_column": "specimen_group",
+    "group_definition": "audio stem with _window_* and _segment_* stripped; never parse class tokens from filename"
+  },
+  "forbidden": {
+    "robot_in_selection": true,
+    "filename_class_features": true,
+    "robot_uda": true,
+    "test_hp_tuning": true,
+    "multi_open_robot_for_claim": true,
+    "choose_best_of_n_robot_runs": true
+  },
+  "frozen_contact_stack": {
+    "note": "Frozen constants from prior HAND-ONLY selection (stress amb-lift + collapse-gain secondary). Not re-searched in this claim path. Not fit on robot.",
+    "source_locks": [
+      "outputs/audio_feature_benchmarks/multimodal_085_collapse_secondary_group_selection/selection_lock.json",
+      "outputs/audio_feature_benchmarks/multimodal_085_best_effort_group_selection/selection_lock_best_0837.json"
+    ],
+    "primary": {
+      "ts_th": 0.5,
+      "cs_th": 0.1,
+      "tt_th": 0.45,
+      "do_tt": true,
+      "tscore_mode": "stress"
+    },
+    "secondary": {
+      "img_th": 0.625,
+      "img_cs": 0.75
+    },
+    "base_rule": "hier_trunk_meta_else on v2 segment artifact"
+  },
+  "material_decode": {
+    "mode": "protect_trunk",
+    "soft_source": "v2_rule_soft",
+    "apply_only_when_pred_in": [1, 3],
+    "protect_classes": [2],
+    "selection_rule": {
+      "name": "cascade_gain_rank",
+      "pre_registered": true,
+      "eligible": {
+        "casc_gain_min": 0.02,
+        "clean_macro_min": 0.94,
+        "nflip_min": 1,
+        "trunk_rec_drop_max": 0.01,
+        "false_trunk_max": 12
+      },
+      "rank_keys_desc": ["casc_gain", "twig_rec", "clean", "score"],
+      "fallback_if_none_eligible": "identity_no_material_change",
+      "cascade_views": [
+        [0.0, 0.0],
+        [0.35, 0.35],
+        [0.5, 0.4]
+      ],
+      "cascade_gain_eval": [0.45, 0.4],
+      "cv": {
+        "n_splits": 5,
+        "shuffle": true,
+        "random_state": 42,
+        "type": "StratifiedGroupKFold"
+      },
+      "grid": {
+        "T": [0.6, 0.8, 1.0, 1.25],
+        "b_leaf": "linspace(-1.6, 0.2, 10)",
+        "b_trunk": "linspace(0.0, 1.6, 9)",
+        "b_twig": "linspace(-0.4, 1.0, 8)"
+      }
+    }
+  },
+  "artifacts": {
+    "hand_oof_bundle": "outputs/audio_feature_benchmarks/multimodal_085_material_logit_bias_group_selection/hand_oof_bundle.npz",
+    "v2_robot_base": "outputs/audio_feature_benchmarks/segment_rule_stack_v2_group_selection/segment_rule_stack_v2_base_segment_outputs.npz",
+    "claim_out": "outputs/paper_claim_v1"
+  },
+  "honesty_note": "Prior exploratory multimodal_085_* robot peeks are OUTSIDE this claim path. This path enforces a single sealed robot open for the paper number. Epistemic multi-peek from past research cannot be erased from history, but the claim artifact is produced by one frozen recipe + one sealed open only."
+}

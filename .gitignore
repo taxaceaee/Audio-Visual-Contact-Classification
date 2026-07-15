@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+.env
+
+# Experiment artifacts / large data
+outputs/
+checkpoints/
+*.zip
+
+# Editor / tooling
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Local caches
+.mypy_cache/
+.ruff_cache/
+
+# Nested / local agent tooling
+.claude/skills/excalidraw-diagram/

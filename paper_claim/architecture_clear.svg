@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320">
+  <defs>
+    <style>
+      .box { fill:#f8fafc; stroke:#334155; stroke-width:1.5; rx:8; }
+      .title { font:700 14px ui-sans-serif,system-ui,sans-serif; fill:#0f172a; }
+      .txt { font:12px ui-sans-serif,system-ui,sans-serif; fill:#334155; }
+      .small { font:11px ui-sans-serif,system-ui,sans-serif; fill:#64748b; }
+      .arrow { stroke:#475569; stroke-width:1.5; fill:none; marker-end:url(#m); }
+      .hl { fill:#ecfdf5; stroke:#059669; }
+      .in { fill:#eff6ff; stroke:#2563eb; }
+    </style>
+    <marker id="m" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <text x="24" y="28" class="title">Clear claim pipeline (F1 = 0.8508, sealed v2 equivalent)</text>
+
+  <!-- inputs -->
+  <rect class="box in" x="24" y="56" width="120" height="72"/>
+  <text x="36" y="78" class="txt">Audio</text>
+  <text x="36" y="96" class="small">robot + w2v</text>
+  <text x="36" y="112" class="small">train: robot_mix</text>
+
+  <rect class="box in" x="24" y="144" width="120" height="56"/>
+  <text x="36" y="166" class="txt">Image</text>
+  <text x="36" y="184" class="small">CLIP only</text>
+
+  <rect class="box in" x="24" y="216" width="120" height="56"/>
+  <text x="36" y="238" class="txt">v2 stack</text>
+  <text x="36" y="256" class="small">hard + meta soft</text>
+
+  <!-- steps -->
+  <rect class="box" x="200" y="72" width="130" height="64"/>
+  <text x="212" y="96" class="txt">1 · Base</text>
+  <text x="212" y="116" class="small">hier_trunk_meta</text>
+
+  <rect class="box hl" x="360" y="56" width="150" height="80"/>
+  <text x="372" y="80" class="txt">2 · Amb-lift</text>
+  <text x="372" y="100" class="small">CLIP ‖ w2v ‖ mix</text>
+  <text x="372" y="118" class="small">amb → trunk</text>
+
+  <rect class="box hl" x="360" y="152" width="150" height="72"/>
+  <text x="372" y="176" class="txt">3 · Secondary</text>
+  <text x="372" y="196" class="small">CLIP trunk + bin</text>
+  <text x="372" y="212" class="small">amb → trunk</text>
+
+  <rect class="box hl" x="360" y="240" width="150" height="64"/>
+  <text x="372" y="264" class="txt">4 · Material</text>
+  <text x="372" y="284" class="small">meta + b_leaf</text>
+  <text x="372" y="298" class="small">leaf/twig only</text>
+
+  <rect class="box" x="560" y="152" width="130" height="64"/>
+  <text x="572" y="180" class="txt">4-class pred</text>
+  <text x="572" y="198" class="small">a / leaf / trunk / twig</text>
+
+  <!-- arrows -->
+  <path class="arrow" d="M144,92 L200,100"/>
+  <path class="arrow" d="M144,172 L200,120"/>
+  <path class="arrow" d="M330,104 L360,96"/>
+  <path class="arrow" d="M430,136 L430,152"/>
+  <path class="arrow" d="M430,224 L430,240"/>
+  <path class="arrow" d="M510,272 L560,190"/>
+  <path class="arrow" d="M144,244 L360,268"/>
+
+  <text x="24" y="310" class="small">Cut: multi-bb (eff/dino/conv) · bandlimit · do_tt · multi material HPs · full redecode</text>
+</svg>
