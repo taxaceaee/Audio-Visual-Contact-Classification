@@ -1,0 +1,28 @@
+{
+  "bundle_root": "/home/ttung05/Desktop/tree_audio/audio_fusion_v2_only",
+  "elapsed_sec": 1.14341402053833,
+  "all_pass": true,
+  "failed": [],
+  "results": {
+    "audio_only": {
+      "ok": true,
+      "macro_f1_4class": 0.7026719927789447,
+      "expected_macro_f1_4class": 0.7026719927789447,
+      "accuracy_4class": 0.7967552951780081,
+      "binary_macro_f1": 0.9291164642187257,
+      "contact_macro_f1": 0.625050260344378
+    },
+    "fusion_v2": {
+      "ok": true,
+      "macro_f1_4class": 0.8507810400075331,
+      "expected_macro_f1_4class": 0.8507810400075331,
+      "accuracy_4class": 0.8913925191527715,
+      "binary_macro_f1": 0.9656515540347875,
+      "contact_macro_f1": null
+    }
+  },
+  "sealed_targets": {
+    "audio_only": 0.7026719927789447,
+    "fusion_paper_claim_v2": 0.8507810400075331
+  }
+}

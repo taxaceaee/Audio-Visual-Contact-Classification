@@ -25,7 +25,11 @@ checkpoints/
 # Bundle feature caches (portable zips hold the full data)
 audio_fusion_v2_only/outputs/
 audio_fusion_v2_only/fusion_v2/data/features/
+pipelines/**/outputs/
+pipelines/**/data/features/
+pipelines/**/fusion_v2/data/features/
 release_three_pipelines/**/data/features/
+tree_structures
 
 # Editor / tooling
 .idea/
@@ -36,6 +40,8 @@ release_three_pipelines/**/data/features/
 # Local caches
 .mypy_cache/
 .ruff_cache/
+.pytest_cache/
+**/__pycache__/
 
 # Nested / local agent tooling
 .claude/skills/excalidraw-diagram/

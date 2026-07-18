@@ -1,6 +1,7 @@
-# audio_fusion_v2_only — portable sealed bundle
+# audio_fusion_v2 — portable sealed bundle
 
-Self-contained folder for **audio-only** + **fusion paper claim v2** robot/test evaluation.
+Self-contained folder for **audio-only** + **fusion paper claim v2** robot/test evaluation.  
+Repo path: `pipelines/audio_fusion_v2/` (renamed from `audio_fusion_v2_only/`).
 
 | Pipeline | Sealed Macro F1 (n=2219) |
 |----------|-------------------------:|
