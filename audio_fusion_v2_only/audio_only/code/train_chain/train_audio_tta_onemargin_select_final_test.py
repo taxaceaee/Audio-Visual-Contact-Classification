@@ -1,0 +1,263 @@
+from __future__ import annotations
+
+import argparse
+import json
+import time
+from pathlib import Path
+
+import joblib
+import numpy as np
+import pandas as pd
+from sklearn.metrics import confusion_matrix
+
+import train_audio_tta_contact_stress_cv_select_final_test as tta
+import train_cv_select_final_test as cv
+import train_stress_cv_select_final_test as stress
+import train_val_select_final_test as base
+
+
+LABELS = np.asarray([0, 1, 2, 3], dtype=np.int64)
+STRESS_VIEWS = stress.STRESS_VIEWS
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Audio-only one-margin TTA selector. It reads an OOF leaderboard produced "
+            "without test, locks the simplest model within a small train-only margin, "
+            "then loads robot/test for final evaluation."
+        )
+    )
+    parser.add_argument("--root", type=Path, default=None)
+    parser.add_argument("--output", type=Path, default=Path("outputs"))
+    parser.add_argument("--random-state", type=int, default=42)
+    parser.add_argument("--margin", type=float, default=0.005)
+    parser.add_argument(
+        "--source-run",
+        type=Path,
+        default=Path("outputs/audio_feature_benchmarks/audio_tta_contact_stress_cv_select"),
+    )
+    parser.add_argument(
+        "--clean-feature-cache-dir",
+        type=Path,
+        default=Path("outputs/audio_feature_benchmarks/total240_trainval_select/features"),
+    )
+    parser.add_argument(
+        "--train-stress-feature-dir",
+        type=Path,
+        default=Path("outputs/audio_feature_benchmarks/total240_stress_cv_select/stress_features"),
+    )
+    return parser.parse_args()
+
+
+def write_json(path: Path, payload: dict) -> None:
+    path.write_text(json.dumps(payload, indent=2, default=float), encoding="utf-8")
+
+
+def model_complexity(base_candidate: str) -> int:
+    return {
+        "tta_hgb_default__all_aug": 0,
+        "tta_hgb_regularized__all_aug": 1,
+        "tta_lgbm_regularized__all_aug": 2,
+        "tta_hier_extra_hgb__all_aug": 3,
+    }.get(base_candidate, 99)
+
+
+def main() -> None:
+    args = parse_args()
+    base.CONFIG["random_state"] = args.random_state
+    base.configure_feature_set("total240")
+
+    root_path = base.resolve_root(args.root)
+    run_slug = "audio_tta_onemargin_select"
+    run_dir = args.output / "audio_feature_benchmarks" / run_slug
+    report_dir = run_dir / "reports"
+    model_dir = run_dir / "models"
+    for directory in [run_dir, report_dir, model_dir]:
+        directory.mkdir(parents=True, exist_ok=True)
+
+    leaderboard_path = args.source_run / "reports" / "audio_tta_contact_stress_cv_select_oof_tta_leaderboard.csv"
+    if not leaderboard_path.exists():
+        raise FileNotFoundError(f"Missing source OOF leaderboard: {leaderboard_path}")
+    leaderboard = pd.read_csv(leaderboard_path)
+    top_score = float(leaderboard["selection_score"].max())
+    eligible = leaderboard[leaderboard["selection_score"] >= top_score - args.margin].copy()
+    eligible["model_complexity"] = eligible["base_candidate"].map(model_complexity)
+    selected = eligible.sort_values(
+        ["model_complexity", "selection_score", "tta_hybrid_macro_contact"],
+        ascending=[True, False, False],
+    ).iloc[0].to_dict()
+
+    tta_specs = tta.make_tta_candidates()
+    selected_spec = tta_specs[str(selected["base_candidate"])]
+    selected_bias = np.asarray(json.loads(selected["class_bias_json"]), dtype=np.float64)
+    selected_tta_weights = json.loads(selected["tta_weights_json"])
+    selection_summary = {
+        "selection_rule": "simplest_base_candidate_within_margin_of_top_train_only_oof_score",
+        "margin": float(args.margin),
+        "top_train_only_selection_score": top_score,
+        "selected_without_test": selected,
+        "selected_model": selected["model"],
+        "selected_base_candidate": selected["base_candidate"],
+        "selected_bias_variant": selected["bias_variant"],
+        "selected_tta_recipe": selected["tta_recipe"],
+        "selected_tta_weights": selected_tta_weights,
+        "selected_base_name": selected_spec.base_name,
+        "selected_train_views": list(selected_spec.train_views),
+        "selected_bias": selected_bias.tolist(),
+        "source_leaderboard_path": str(leaderboard_path.resolve()),
+    }
+    selection_path = report_dir / f"{run_slug}_selected_without_test.json"
+    write_json(selection_path, selection_summary)
+    print("Selection lock written before loading robot/test:")
+    print(json.dumps(selection_summary, indent=2, default=float), flush=True)
+
+    train_csv = base.require_file(root_path / "audio_visual_dataset_default" / "dataset.csv", "hand/default dataset.csv")
+    train_df = base.load_manifest(train_csv, "hand_train")
+    clean_feat, _ = base.build_or_load_feature_cache(
+        train_df,
+        "hand_train_full",
+        feature_dir=args.clean_feature_cache_dir,
+        force_rebuild=False,
+    )
+    train_payloads = {"clean": clean_feat}
+    for view in STRESS_VIEWS:
+        if view == "clean":
+            continue
+        payload, _ = stress.build_or_load_stress_cache(
+            train_df,
+            view=view,
+            stress_feature_dir=args.train_stress_feature_dir,
+            force_rebuild=False,
+        )
+        train_payloads[view] = payload
+    X_by_view = {view: train_payloads[view]["X"] for view in STRESS_VIEWS}
+    y = clean_feat["y"]
+
+    test_csv = base.require_file(root_path / "audio_visual_dataset_robo_default" / "dataset.csv", "robot dataset.csv")
+    test_df = base.load_manifest(test_csv, "robot_test")
+    test_clean, test_clean_timing = base.build_or_load_feature_cache(
+        test_df,
+        "robot_test",
+        feature_dir=args.clean_feature_cache_dir,
+        force_rebuild=False,
+    )
+    test_stress_feature_dir = args.source_run / "test_tta_features"
+    test_payloads = {"clean": test_clean}
+    test_timing = {"clean": test_clean_timing}
+    for view in STRESS_VIEWS:
+        if view == "clean":
+            continue
+        payload, view_timing = stress.build_or_load_stress_cache(
+            test_df,
+            view=view,
+            stress_feature_dir=test_stress_feature_dir,
+            force_rebuild=False,
+        )
+        test_payloads[view] = payload
+        test_timing[view] = view_timing
+    X_test_by_view = {view: test_payloads[view]["X"] for view in STRESS_VIEWS}
+
+    base_specs = cv.make_candidates(args.random_state)
+    start = time.perf_counter()
+    final_artifact = stress.fit_stress_candidate(
+        selected_spec,
+        base_specs,
+        tta_specs,
+        X_by_view,
+        y,
+        np.arange(len(y)),
+    )
+    final_fit_time = time.perf_counter() - start
+    final_proba_by_view = {
+        view: stress.predict_stress_artifact(final_artifact, X_test_by_view[view])
+        for view in STRESS_VIEWS
+    }
+    final_proba = tta.weighted_proba(final_proba_by_view, selected_tta_weights)
+    final_pred = tta.predict_with_bias(final_proba, selected_bias)
+    final_row = base.make_report_row(
+        model_name=str(selected["model"]),
+        split_name="robot_test_final",
+        y_true=test_clean["y"],
+        y_pred=final_pred,
+        train_time_sec=final_fit_time,
+        predict_time_sec=0.0,
+    )
+    final_row.update(
+        {
+            "selected_by": "train_only_tta_one_margin_simpler_selector",
+            "selected_score": selected["selection_score"],
+            "selected_tta_weights_json": json.dumps(selected_tta_weights),
+            "selected_bias_json": json.dumps(selected_bias.tolist()),
+        }
+    )
+    final_report_path = report_dir / f"{run_slug}_final_test_report.csv"
+    pd.DataFrame([final_row]).to_csv(final_report_path, index=False)
+
+    predictions_path = report_dir / f"{run_slug}_final_test_predictions.csv"
+    audio_columns = [column for column in ["audio_file", "audio_path", "label", "y", "group_key", "source"] if column in test_df]
+    prediction_frame = test_df[audio_columns].copy()
+    prediction_frame["pred_y"] = final_pred.astype(int)
+    prediction_frame["pred_label"] = prediction_frame["pred_y"].map(base.ID2LABEL)
+    for class_id, class_name in base.ID2LABEL.items():
+        prediction_frame[f"proba_{class_name}"] = final_proba[:, class_id]
+    prediction_frame.to_csv(predictions_path, index=False)
+
+    confusion_path = report_dir / f"{run_slug}_final_test_confusion_matrix.csv"
+    pd.DataFrame(
+        confusion_matrix(test_clean["y"], final_pred, labels=LABELS),
+        index=base.CLASS_NAMES,
+        columns=base.CLASS_NAMES,
+    ).to_csv(confusion_path)
+
+    bundle_path = model_dir / f"{run_slug}_selected_model_bundle.joblib"
+    joblib.dump(
+        {
+            "protocol": "audio_only_tta_one_margin_select_no_test_until_lock",
+            "selection_summary": selection_summary,
+            "final_test_report": final_row,
+            "selected_artifact": final_artifact,
+        },
+        bundle_path,
+    )
+
+    protocol_summary = {
+        "protocol": "audio_only_tta_one_margin_select_no_test_until_lock",
+        "root_path": str(root_path.resolve()),
+        "run_dir": str(run_dir.resolve()),
+        "selection_summary": selection_summary,
+        "final_test_report": final_row,
+        "test_feature_timing": test_timing,
+        "artifacts": {
+            "selection_lock": str(selection_path.resolve()),
+            "final_test_report": str(final_report_path.resolve()),
+            "final_test_predictions": str(predictions_path.resolve()),
+            "final_test_confusion_matrix": str(confusion_path.resolve()),
+            "selected_model_bundle": str(bundle_path.resolve()),
+        },
+    }
+    summary_path = report_dir / f"{run_slug}_protocol_summary.json"
+    write_json(summary_path, protocol_summary)
+
+    print("\nFinal robot/test result after frozen one-margin TTA selection:")
+    print(
+        pd.DataFrame([final_row])[
+            [
+                "model",
+                "accuracy_4class",
+                "macro_f1_4class",
+                "contact_macro_f1",
+                "binary_macro_f1",
+                "selected_score",
+            ]
+        ].to_string(index=False),
+        flush=True,
+    )
+    print("\nSaved artifacts:")
+    print("Selection lock:", selection_path.resolve())
+    print("Final test report:", final_report_path.resolve())
+    print("Bundle:", bundle_path.resolve())
+
+
+if __name__ == "__main__":
+    main()

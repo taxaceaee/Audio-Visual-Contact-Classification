@@ -1,0 +1,2 @@
+# Prefer: from bundle root
+#   export PYTHONPATH="e2e_code:audio_only/code/train_chain:fusion_v2/code:shared:$PYTHONPATH"

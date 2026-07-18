@@ -1,0 +1,134 @@
+{
+  "split": "robot_test_final",
+  "protocol": "paper_claim_v2_simple_pure_single_shot",
+  "recipe_id": "paper_claim_v2_simple_leaf_bias",
+  "recipe_sha256": "84d99278f9c6d0f745011d594956068645493768e628cce7e967571f1de4adc9",
+  "locked_candidate": {
+    "mode": "protect_trunk_leaf_bias_only",
+    "b_leaf": -1.2999999999999998,
+    "T": 1.0,
+    "b_trunk": 0.0,
+    "b_twig": 0.0,
+    "soft_source": "meta",
+    "worst": 0.8976720690713074,
+    "clean": 0.9552974143479402,
+    "casc_gain": 0.020215040214081603,
+    "trunk_rec": 0.978448275862069,
+    "twig_rec": 0.9338842975206612,
+    "leaf_rec": 0.9297520661157025,
+    "nflip": 4,
+    "false_tr": 6
+  },
+  "frozen_contact_stack": {
+    "note": "Frozen constants from prior HAND-ONLY selection (stress amb-lift + collapse-gain secondary). Not re-searched here. Not fit on robot. do_tt intentionally DISABLED (simplification).",
+    "source_locks": [
+      "outputs/audio_feature_benchmarks/multimodal_085_collapse_secondary_group_selection/selection_lock.json"
+    ],
+    "primary": {
+      "ts_th": 0.5,
+      "cs_th": 0.1,
+      "do_tt": false
+    },
+    "secondary": {
+      "img_th": 0.625,
+      "img_cs": 0.75
+    },
+    "base_rule": "hier_trunk_meta_else on v2 segment artifact"
+  },
+  "simplification": [
+    "no do_tt / no trunk-vs-twig audio detector",
+    "no b_trunk / b_twig free params",
+    "T fixed to 1.0",
+    "soft source = meta only (not v2_rule_soft)",
+    "1-D hand grid on b_leaf only"
+  ],
+  "n": 2219,
+  "metrics": {
+    "accuracy_4class": 0.8913925191527715,
+    "macro_precision_4class": 0.8820363213948231,
+    "macro_recall_4class": 0.8373397067309987,
+    "macro_f1_4class": 0.8507810400075331,
+    "weighted_f1_4class": 0.8903013855476042,
+    "binary_macro_f1": 0.9656515540347875
+  },
+  "per_class_4class": {
+    "ambient": {
+      "precision": 0.9378109452736318,
+      "recall": 0.9991166077738516,
+      "f1-score": 0.9674935842600513,
+      "support": 1132.0
+    },
+    "leaf": {
+      "precision": 1.0,
+      "recall": 0.7508532423208191,
+      "f1-score": 0.8576998050682261,
+      "support": 293.0
+    },
+    "trunk": {
+      "precision": 0.8970976253298153,
+      "recall": 0.737527114967462,
+      "f1-score": 0.8095238095238095,
+      "support": 461.0
+    },
+    "twig": {
+      "precision": 0.6932367149758454,
+      "recall": 0.8618618618618619,
+      "f1-score": 0.7684069611780455,
+      "support": 333.0
+    },
+    "accuracy": 0.8913925191527715,
+    "macro avg": {
+      "precision": 0.8820363213948231,
+      "recall": 0.8373397067309987,
+      "f1-score": 0.8507810400075331,
+      "support": 2219.0
+    },
+    "weighted avg": {
+      "precision": 0.9008615689111098,
+      "recall": 0.8913925191527715,
+      "f1-score": 0.8903013855476042,
+      "support": 2219.0
+    }
+  },
+  "confusion_matrix_4class": [
+    [
+      1131,
+      0,
+      1,
+      0
+    ],
+    [
+      2,
+      220,
+      20,
+      51
+    ],
+    [
+      45,
+      0,
+      340,
+      76
+    ],
+    [
+      28,
+      0,
+      18,
+      287
+    ]
+  ],
+  "invariants": {
+    "test_loaded_after_lock": true,
+    "selection_used_hand_only": true,
+    "no_test_hp_tuning": true,
+    "filename_class_features": false,
+    "robot_uda": false,
+    "pure_single_shot_architecture": true,
+    "robot_opened_once_for_claim": true,
+    "simplified_v2": true,
+    "free_material_params": [
+      "b_leaf"
+    ],
+    "no_do_tt": true,
+    "soft_source": "meta"
+  }
+}

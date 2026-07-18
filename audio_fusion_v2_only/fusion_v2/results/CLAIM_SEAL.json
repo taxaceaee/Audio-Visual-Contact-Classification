@@ -1,0 +1,33 @@
+{
+  "sealed": true,
+  "sealed_utc": "2026-07-12T20:02:41.795630+00:00",
+  "recipe_id": "paper_claim_v2_simple_leaf_bias",
+  "recipe_sha256": "84d99278f9c6d0f745011d594956068645493768e628cce7e967571f1de4adc9",
+  "selected_candidate": {
+    "mode": "protect_trunk_leaf_bias_only",
+    "b_leaf": -1.2999999999999998,
+    "T": 1.0,
+    "b_trunk": 0.0,
+    "b_twig": 0.0,
+    "soft_source": "meta",
+    "worst": 0.8976720690713074,
+    "clean": 0.9552974143479402,
+    "casc_gain": 0.020215040214081603,
+    "trunk_rec": 0.978448275862069,
+    "twig_rec": 0.9338842975206612,
+    "leaf_rec": 0.9297520661157025,
+    "nflip": 4,
+    "false_tr": 6
+  },
+  "final_test_macro_f1": 0.8507810400075331,
+  "protocol": "paper_claim_pure_single_shot_v1",
+  "invariants": {
+    "robot_opened_once": true,
+    "no_reopen_without_force_env": true,
+    "selection_was_hand_only": true,
+    "filename_class_features": false,
+    "robot_uda": false,
+    "no_test_hp_tuning": true
+  },
+  "note": "This seal marks the only allowed robot open for this claim directory. Further peeks are non-claim diagnostics."
+}
