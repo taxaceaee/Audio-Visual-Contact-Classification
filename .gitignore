@@ -11,8 +11,8 @@ venv/
 reproduce_summary.json
 
 # Precomputed feature blobs — keep locally for reproduce, do not push
-data/features/**
-!data/features/README.md
+fusion_base/data/features/**
+!fusion_base/data/features/README.md
 *.npy
 *.npz
 *.joblib

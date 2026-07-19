@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+BUNDLE = ROOT / "fusion_base"
 
 
 def _load(name: str, path: Path):
@@ -20,9 +22,10 @@ def _load(name: str, path: Path):
 
 
 def main() -> int:
-    if str(ROOT) not in sys.path:
-        sys.path.insert(0, str(ROOT))
-    mod = _load("evaluate_fusion", ROOT / "code" / "evaluate_fusion.py")
+    os.environ["TREE_BUNDLE_ROOT"] = str(BUNDLE)
+    if str(BUNDLE) not in sys.path:
+        sys.path.insert(0, str(BUNDLE))
+    mod = _load("evaluate_fusion", BUNDLE / "code" / "evaluate_fusion.py")
     result = mod.main()
     summary = {
         "status": "ok",

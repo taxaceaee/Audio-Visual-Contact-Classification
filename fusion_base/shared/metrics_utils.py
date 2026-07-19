@@ -19,7 +19,7 @@ CLASS_NAMES = ["ambient", "leaf", "trunk", "twig"]
 
 
 def bundle_root() -> Path:
-    """Release root: parent of shared/."""
+    """Bundle root (fusion_base): parent of shared/."""
     return Path(__file__).resolve().parent.parent
 
 
