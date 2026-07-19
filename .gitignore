@@ -10,7 +10,7 @@ venv/
 # Local reproduce summary (regenerated)
 reproduce_summary.json
 
-# Precomputed feature blobs (keep code + seals in git; features local / portable pack)
+# Precomputed feature blobs — keep locally for reproduce, do not push
 data/features/**
 !data/features/README.md
 *.npy
@@ -25,7 +25,11 @@ data/features/**
 *.zip
 *.tar.gz
 
-# Editor / tooling
+# Local agent / IDE / tooling (never push)
+.claude/
+.commandcode/
+.codex/
+.agents/
 .idea/
 .vscode/
 *.swp
@@ -34,5 +38,4 @@ data/features/**
 # Local caches
 .mypy_cache/
 .ruff_cache/
-.pytest_cache/
 **/__pycache__/
