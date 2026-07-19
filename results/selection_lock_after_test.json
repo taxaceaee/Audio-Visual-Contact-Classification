@@ -1,0 +1,77 @@
+{
+  "protocol": "paper_claim_v2_simple_hand_selection",
+  "frozen_contact_stack": {
+    "note": "Frozen constants from prior HAND-ONLY selection (stress amb-lift + collapse-gain secondary). Not re-searched here. Not fit on robot. do_tt intentionally DISABLED (simplification).",
+    "source_locks": [
+      "outputs/audio_feature_benchmarks/multimodal_085_collapse_secondary_group_selection/selection_lock.json"
+    ],
+    "primary": {
+      "ts_th": 0.5,
+      "cs_th": 0.1,
+      "do_tt": false
+    },
+    "secondary": {
+      "img_th": 0.625,
+      "img_cs": 0.75
+    },
+    "base_rule": "hier_trunk_meta_else on v2 segment artifact"
+  },
+  "material_decode": {
+    "mode": "protect_trunk_leaf_bias_only",
+    "soft_source": "meta",
+    "T": 1.0,
+    "b_trunk": 0.0,
+    "b_twig": 0.0,
+    "apply_only_when_pred_in": [
+      1,
+      3
+    ]
+  },
+  "selection_rule": "cascade_gain_1d_leaf_bias",
+  "selected_candidate": {
+    "mode": "protect_trunk_leaf_bias_only",
+    "b_leaf": -1.2999999999999998,
+    "T": 1.0,
+    "b_trunk": 0.0,
+    "b_twig": 0.0,
+    "soft_source": "meta",
+    "worst": 0.8976720690713074,
+    "clean": 0.9552974143479402,
+    "casc_gain": 0.020215040214081603,
+    "trunk_rec": 0.978448275862069,
+    "twig_rec": 0.9338842975206612,
+    "leaf_rec": 0.9297520661157025,
+    "nflip": 4,
+    "false_tr": 6
+  },
+  "selection_note": "eligible_cascade_gain_1d_rank",
+  "base_contact_hand_macro": 0.951091459097298,
+  "base_trunk_rec": 0.978448275862069,
+  "n_candidates_scored": 21,
+  "hand_oof_bundle": "outputs/audio_feature_benchmarks/multimodal_085_material_logit_bias_group_selection/hand_oof_bundle.npz",
+  "leakage_audit": {
+    "robot_loaded": false,
+    "selection_split": "hand_train only",
+    "group_column": "specimen_group",
+    "class_from_path_features": false
+  },
+  "recipe_id": "paper_claim_v2_simple_leaf_bias",
+  "recipe_sha256": "84d99278f9c6d0f745011d594956068645493768e628cce7e967571f1de4adc9",
+  "recipe_path": "paper_claim/RECIPE_v2_simple.json",
+  "claim_type": "pure_single_shot",
+  "test_loaded": true,
+  "selection_data": "hand/default only",
+  "group_column": "specimen_group",
+  "invariants": {
+    "robot_not_used_in_selection": true,
+    "filename_class_features": false,
+    "no_test_hp_tuning": true,
+    "robot_uda": false,
+    "multi_open_robot_for_claim": false,
+    "pure_single_shot_architecture": true,
+    "exploratory_multimodal_085_peeks_excluded_from_claim": true
+  },
+  "created_utc": "2026-07-12T20:01:41.389520+00:00",
+  "final_test_macro_f1": 0.8507810400075331,
+  "sealed": true
+}

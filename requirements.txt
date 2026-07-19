@@ -1,0 +1,8 @@
+# Pinned for sealed fusion-v2 reproduce (robot Macro F1 bit-match).
+#   python3 -m venv .venv && source .venv/bin/activate
+#   pip install -r requirements.txt
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.5.2
+scipy>=1.11,<1.18
+pytest>=8.0

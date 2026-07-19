@@ -1,0 +1,98 @@
+{
+  "protocol": "clear_pipeline_verify_vs_sealed_v2",
+  "architecture": "clear_v2_equiv_clip_mix_w2v",
+  "hp": {
+    "ts_th": 0.5,
+    "cs_th": 0.1,
+    "img_th": 0.625,
+    "img_cs": 0.75,
+    "b_leaf": -1.2999999999999998
+  },
+  "detectors": "CLIP + wav2vec2 + robot_mix (train); CLIP binary/trunk secondary",
+  "dropped": [
+    "efficientnet/dino/convnext in amb det",
+    "bandlimit stress view",
+    "do_tt",
+    "multi material biases",
+    "v2_rule_soft / hier material soft"
+  ],
+  "sealed_macro_f1": 0.8507810400075331,
+  "clear_macro_f1": 0.8507810400075331,
+  "abs_delta_f1": 0.0,
+  "match_sealed": true,
+  "metrics": {
+    "macro_f1_4class": 0.8507810400075331,
+    "confusion_matrix_4class": [
+      [
+        1131,
+        0,
+        1,
+        0
+      ],
+      [
+        2,
+        220,
+        20,
+        51
+      ],
+      [
+        45,
+        0,
+        340,
+        76
+      ],
+      [
+        28,
+        0,
+        18,
+        287
+      ]
+    ],
+    "per_class": {
+      "ambient": {
+        "precision": 0.9378109452736318,
+        "recall": 0.9991166077738516,
+        "f1-score": 0.9674935842600513,
+        "support": 1132.0
+      },
+      "leaf": {
+        "precision": 1.0,
+        "recall": 0.7508532423208191,
+        "f1-score": 0.8576998050682261,
+        "support": 293.0
+      },
+      "trunk": {
+        "precision": 0.8970976253298153,
+        "recall": 0.737527114967462,
+        "f1-score": 0.8095238095238095,
+        "support": 461.0
+      },
+      "twig": {
+        "precision": 0.6932367149758454,
+        "recall": 0.8618618618618619,
+        "f1-score": 0.7684069611780455,
+        "support": 333.0
+      },
+      "accuracy": 0.8913925191527715,
+      "macro avg": {
+        "precision": 0.8820363213948231,
+        "recall": 0.8373397067309987,
+        "f1-score": 0.8507810400075331,
+        "support": 2219.0
+      },
+      "weighted avg": {
+        "precision": 0.9008615689111098,
+        "recall": 0.8913925191527715,
+        "f1-score": 0.8903013855476042,
+        "support": 2219.0
+      }
+    }
+  },
+  "invariants": {
+    "no_new_hp_selection": true,
+    "b_leaf_from_hand_lock": true,
+    "no_robot_uda": true,
+    "filename_class_features": false,
+    "selection_used_hand_only": true
+  }
+}
