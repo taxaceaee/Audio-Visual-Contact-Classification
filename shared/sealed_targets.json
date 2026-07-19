@@ -1,0 +1,12 @@
+{
+  "fusion_paper_claim_v2": {
+    "section": "fusion_paper_claim_v2",
+    "name": "paper_claim_v2 / clear_pipeline",
+    "macro_f1_4class": 0.8507810400075331,
+    "accuracy_4class": 0.8913925191527715,
+    "binary_macro_f1": 0.9656515540347875,
+    "n": 2219,
+    "tolerance": 1e-09,
+    "b_leaf": -1.3
+  }
+}
