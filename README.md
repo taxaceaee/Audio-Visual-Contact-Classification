@@ -29,9 +29,9 @@ This repository contains **only** the paper fusion v2 path: documentation, claim
 
 | Artifact | Path |
 |:--|:--|
-| Seal | [`results/CLAIM_SEAL.json`](results/CLAIM_SEAL.json) |
-| Full metrics | [`results/final_test_metrics.json`](results/final_test_metrics.json) |
-| Targets | [`shared/sealed_targets.json`](shared/sealed_targets.json) |
+| Seal | [`fusion_base/results/CLAIM_SEAL.json`](fusion_base/results/CLAIM_SEAL.json) |
+| Full metrics | [`fusion_base/results/final_test_metrics.json`](fusion_base/results/final_test_metrics.json) |
+| Targets | [`fusion_base/shared/sealed_targets.json`](fusion_base/shared/sealed_targets.json) |
 | Recipe | `paper_claim_v2_simple_leaf_bias` · free HP: \(b_{\mathrm{leaf}} = -1.3\) (hand only) |
 
 ---
@@ -57,8 +57,8 @@ Detectors  ──fit on HAND only──►  trunk / contact / binary scores
 → 4-class labels on robot windows  ·  Macro F1 = 0.850781
 ```
 
-**Claim code:** [`code/paper_claim/clear_pipeline.py`](code/paper_claim/clear_pipeline.py)  
-**Design write-up:** [`docs/PAPER_CLAIM_V2_FUSION_GUIDE.md`](docs/PAPER_CLAIM_V2_FUSION_GUIDE.md)
+**Claim code:** [`fusion_base/code/paper_claim/clear_pipeline.py`](fusion_base/code/paper_claim/clear_pipeline.py)  
+**Design write-up:** [`fusion_base/docs/PAPER_CLAIM_V2_FUSION_GUIDE.md`](fusion_base/docs/PAPER_CLAIM_V2_FUSION_GUIDE.md)
 
 ---
 
@@ -69,27 +69,28 @@ Detectors  ──fit on HAND only──►  trunk / contact / binary scores
 ├── README.md
 ├── requirements.txt
 ├── reproduce.py                 # official sealed entry point
-├── code/
-│   ├── evaluate_fusion.py
-│   └── paper_claim/
-│       ├── clear_pipeline.py    # paper-facing clear architecture
-│       ├── RECIPE_v2_simple.json
-│       ├── ARCHITECTURE_CLEAR.md
-│       └── architecture_clear.svg
-├── data/
-│   ├── manifests/               # hand + robot dataset CSVs (tracked)
-│   └── features/                # precomputed features (local; not in git)
-├── results/                     # CLAIM_SEAL + metrics + locks
-├── docs/                        # fusion claim guide + diagram
-├── shared/                      # metrics helpers + sealed_targets.json
-└── tests/                       # sealed F1 regression tests
+└── fusion_base/
+    ├── code/
+    │   ├── evaluate_fusion.py
+    │   └── paper_claim/
+    │       ├── clear_pipeline.py
+    │       ├── RECIPE_v2_simple.json
+    │       ├── ARCHITECTURE_CLEAR.md
+    │       └── architecture_clear.svg
+    ├── data/
+    │   ├── manifests/           # hand + robot dataset CSVs (tracked)
+    │   └── features/            # precomputed features (local; not in git)
+    ├── results/                 # CLAIM_SEAL + metrics + locks
+    ├── docs/                    # fusion claim guide + diagram
+    ├── shared/                  # metrics helpers + sealed_targets.json
+    └── tests/                   # sealed F1 regression tests
 ```
 
 ---
 
 ## Reproduce
 
-Requires precomputed features under `data/features/` (local / portable pack; git tracks manifests + seals only).
+Requires precomputed features under `fusion_base/data/features/` (local / portable pack; git tracks manifests + seals only).
 
 ```bash
 python3 -m venv .venv
@@ -98,8 +99,8 @@ pip install -r requirements.txt
 
 python reproduce.py
 # or:
-python code/evaluate_fusion.py
-pytest tests/ -q
+python fusion_base/code/evaluate_fusion.py
+pytest fusion_base/tests/ -q
 ```
 
 Expected: exit code **0**, Macro F1 **0.8507810400075331** within **1e-9**.
@@ -107,7 +108,7 @@ Expected: exit code **0**, Macro F1 **0.8507810400075331** within **1e-9**.
 Optional:
 
 ```bash
-export TREE_BUNDLE_ROOT=/absolute/path/to/this/repo
+export TREE_BUNDLE_ROOT=/absolute/path/to/this/repo/fusion_base
 python reproduce.py
 ```
 

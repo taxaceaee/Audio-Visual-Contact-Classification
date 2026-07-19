@@ -18,7 +18,7 @@ CLASS_NAMES = ["ambient", "leaf", "trunk", "twig"]
 
 
 def _repo_root() -> Path:
-    # .../code/paper_claim/clear_pipeline.py -> repo root
+    # .../fusion_base/code/paper_claim/clear_pipeline.py -> fusion_base
     return Path(__file__).resolve().parents[2]
 
 

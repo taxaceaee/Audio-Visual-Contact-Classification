@@ -1,6 +1,6 @@
 # Precomputed features (not tracked in git)
 
-Place sealed feature blobs here for `reproduce.py`:
+Place sealed feature blobs here for `reproduce.py` (path: `fusion_base/data/features/`):
 
 ```text
 features/
