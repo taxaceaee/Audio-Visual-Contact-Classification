@@ -1,0 +1,20 @@
+{
+  "protocol": "audio_only_lift_source_blend_no_test_until_lock",
+  "allowed_selection_data": "hand/default train labels and locked audio-only OOF probabilities",
+  "forbidden_selection_data": "robot/test labels, robot/test predictions before lock, image/multimodal features",
+  "checkpoint_before_this_run": "checkpoints/audio_specimen_contact_lift_0693839",
+  "source_names": [
+    "highsr_default",
+    "highsr_extratrees",
+    "highsr_regularized",
+    "mfcc40_grid",
+    "report_gate_onehot",
+    "report_gate_proba",
+    "total120_grid",
+    "total240_ensemble",
+    "total240_grid",
+    "total240_stack_lr",
+    "total240_tree_meta"
+  ],
+  "candidate_count": 156
+}

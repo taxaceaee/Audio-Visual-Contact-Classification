@@ -1,0 +1,49 @@
+{
+  "mode": "Frozen Artifact Replay",
+  "run_slug": "audio_lift_source_blend_select",
+  "split": "robot_test_final",
+  "audio_only": true,
+  "uses_image_or_multimodal_features": false,
+  "metrics": {
+    "accuracy_4class": 0.7967552951780081,
+    "macro_f1_4class": 0.7026719927789447,
+    "contact_macro_f1": 0.625050260344378,
+    "binary_macro_f1": 0.9291164642187256
+  },
+  "n_samples_from_confusion_matrix": 2219,
+  "selected_lock": {
+    "selection_rule": "highest train-only OOF macro/contact score over lift-anchor source blends",
+    "selected_without_test": {
+      "recipe_kind": "audio_lift_source_blend",
+      "source_name": "report_gate_onehot",
+      "source_weight": 0.05,
+      "blend_mode": "segment_lift",
+      "macro_f1": 0.9353447727801658,
+      "contact_macro_f1": 0.9164944534943943,
+      "binary_macro_f1": 0.99077894279929,
+      "selection_score": 0.9352330939963467
+    },
+    "method_card": "/home/ttung05/Desktop/tree_audio/outputs/audio_feature_benchmarks/audio_lift_source_blend_select/reports/audio_lift_source_blend_select_method_card_before_test.json",
+    "leaderboard_path": "/home/ttung05/Desktop/tree_audio/outputs/audio_feature_benchmarks/audio_lift_source_blend_select/reports/audio_lift_source_blend_select_oof_leaderboard.csv"
+  },
+  "method_card": {
+    "protocol": "audio_only_lift_source_blend_no_test_until_lock",
+    "allowed_selection_data": "hand/default train labels and locked audio-only OOF probabilities",
+    "forbidden_selection_data": "robot/test labels, robot/test predictions before lock, image/multimodal features",
+    "checkpoint_before_this_run": "checkpoints/audio_specimen_contact_lift_0693839",
+    "source_names": [
+      "highsr_default",
+      "highsr_extratrees",
+      "highsr_regularized",
+      "mfcc40_grid",
+      "report_gate_onehot",
+      "report_gate_proba",
+      "total120_grid",
+      "total240_ensemble",
+      "total240_grid",
+      "total240_stack_lr",
+      "total240_tree_meta"
+    ],
+    "candidate_count": 156
+  }
+}
